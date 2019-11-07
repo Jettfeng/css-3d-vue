@@ -137,61 +137,85 @@ export default {
   },
   created () {
     this.root = new THREE.Object3D()
+    this.scene = null
+    this.camera = null
+    this.renderer = new CSS3drenderer.CSS3DRenderer()
+    this.controls = null
   },
   mounted () {
-    this.init() // 初始化
-    this.animate() // 自动旋转
-    this.transform(this.targets, 0) // 生成球形
+    this.init().then(() => {
+      this.generateAllElement().then(() => {
+        this.generateBall().then(() => {
+          this.injectDom()
+          this.animate() // 自动旋转
+          this.transform(this.targets, 0) // 生成球形
+        })
+      })
+    })
   },
   methods: {
     init () {
-      this.camera = new THREE.PerspectiveCamera(32, this.$refs.container.clientWidth / this.$refs.container.clientHeight, 1, 10000)
-      this.camera.position.z = 3000
-      this.scene = new THREE.Scene()
-      this.scene.add(this.root)
-      // table
-      for (var i = 0; i < this.table.length; i += 5) {
-        var element = document.createElement('div')
-        element.className = 'element'
-        element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')'
-        if (i < 200) { // 高亮效果
-          element.style.backgroundColor = 'red'
+      return new Promise((resolve) => {
+        this.camera = new THREE.PerspectiveCamera(32, this.$refs.container.clientWidth / this.$refs.container.clientHeight, 1, 10000)
+        this.camera.position.z = 3000
+        this.scene = new THREE.Scene()
+        this.scene.add(this.root)
+        resolve()
+      })
+    },
+    // 生成所有元素
+    generateAllElement () {
+      return new Promise((resolve, reject) => {
+        for (var i = 0; i < this.table.length; i += 5) {
+          var element = document.createElement('div')
+          element.className = 'element'
+          element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')'
+          if (i < 200) { // 高亮效果
+            element.style.backgroundColor = 'red'
+          }
+          var number = document.createElement('div')
+          number.className = 'number'
+          number.textContent = i / 5 + 1
+          element.appendChild(number)
+          var symbol = document.createElement('div')
+          symbol.className = 'symbol'
+          symbol.textContent = this.table[i]
+          element.appendChild(symbol)
+          var details = document.createElement('div')
+          details.className = 'details'
+          details.innerHTML = this.table[i + 1] + '<br>' + this.table[i + 2]
+          element.appendChild(details)
+          var object = new CSS3drenderer.CSS3DObject(element)
+          object.position.x = 0
+          object.position.y = 0
+          object.position.z = 0
+          this.scene.add(object)
+          this.objects.push(object)
+          this.root.add(object)
         }
-        var number = document.createElement('div')
-        number.className = 'number'
-        number.textContent = i / 5 + 1
-        element.appendChild(number)
-        var symbol = document.createElement('div')
-        symbol.className = 'symbol'
-        symbol.textContent = this.table[i]
-        element.appendChild(symbol)
-        var details = document.createElement('div')
-        details.className = 'details'
-        details.innerHTML = this.table[i + 1] + '<br>' + this.table[i + 2]
-        element.appendChild(details)
-        var object = new CSS3drenderer.CSS3DObject(element)
-        object.position.x = 0
-        object.position.y = 0
-        object.position.z = 0
-        this.scene.add(object)
-        this.objects.push(object)
-        this.root.add(object)
-      }
-
-      // sphere
-      var vector = new THREE.Vector3()
-      for (var j = 0, l = this.objects.length; j < l; j++) {
-        var phi = Math.acos(-1 + (2 * j) / l)
-        var theta = Math.sqrt(l * Math.PI) * phi
-        var object1 = new THREE.Object3D()
-        object1.position.x = 800 * Math.cos(theta) * Math.sin(phi)
-        object1.position.y = 800 * Math.sin(theta) * Math.sin(phi)
-        object1.position.z = 800 * Math.cos(phi)
-        vector.copy(object1.position).multiplyScalar(2)
-        object1.lookAt(vector)
-        this.targets.push(object1)
-      }
-      this.renderer = new CSS3drenderer.CSS3DRenderer()
+        resolve()
+      })
+    },
+    // 球形
+    generateBall () {
+      return new Promise((resolve) => {
+        var vector = new THREE.Vector3()
+        for (var j = 0, l = this.objects.length; j < l; j++) {
+          var phi = Math.acos(-1 + (2 * j) / l)
+          var theta = Math.sqrt(l * Math.PI) * phi
+          var object = new THREE.Object3D()
+          object.position.x = 800 * Math.cos(theta) * Math.sin(phi)
+          object.position.y = 800 * Math.sin(theta) * Math.sin(phi)
+          object.position.z = 800 * Math.cos(phi)
+          vector.copy(object.position).multiplyScalar(2)
+          object.lookAt(vector)
+          this.targets.push(object)
+        }
+        resolve()
+      })
+    },
+    // 插入节点
+    injectDom () {
       this.renderer.setSize(this.$refs.container.clientWidth, this.$refs.container.clientHeight)
       this.renderer.domElement.style.position = 'absolute'
       this.$refs.container.appendChild(this.renderer.domElement)
@@ -200,6 +224,7 @@ export default {
       this.controls.minDistance = 500
       this.controls.maxDistance = 6000
     },
+    // 生成球形
     transform (targets, duration) {
       let objects = this.objects
       TWEEN.removeAll()

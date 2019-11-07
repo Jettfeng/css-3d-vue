@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import ball from './ball-copy'
+import ball from './ball'
 export default {
   components: {
     ball
