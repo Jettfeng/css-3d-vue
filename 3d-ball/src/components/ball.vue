@@ -131,7 +131,7 @@ export default {
         'Uus', 'Ununseptium', '(294)', 17, 7,
         'Uuo', 'Ununoctium', '(294)', 18, 7
       ],
-      origin: [
+      table1: [
         'H', 'Hydrogen', '1.00794', 1, 1,
         'He', 'Helium', '4.002602', 18, 1,
         'Li', 'Lithium', '#6.941', 1, 2,
@@ -251,24 +251,14 @@ export default {
         'Uus', 'Ununseptium', '(294)', 17, 7,
         'Uuo', 'Ununoctium', '(294)', 18, 7
       ],
-      table1: [
-        'H', 'Hydrogen', '1.00794', 1, 1,
-        'He', 'Helium', '4.002602', 18, 1,
-        'Li', 'Lithium', '#6.941', 1, 2,
-        'Be', 'Beryllium', '9.012182', 2, 2,
-        'B', 'Boron', '#10.811', 13, 2,
-        'C', 'Carbon', '#12.0107', 14, 2,
-        'N', 'Nitrogen', '#14.0067', 15, 2,
-        'O', 'Oxygen', '#15.9994', 16, 2,
-        'F', 'Fluorine', '18.9984032', 17, 2
-      ],
       targets: [],
       objects: [],
-      scene: null
+      scene: null,
+      number: 200
     }
   },
   created () {
-    console.log(this.origin.slice(0, 20))
+    // console.log(this.origin.slice(0, 20))
     // this.root = new THREE.Object3D()
     // this.scene = null
     this.camera = null
@@ -287,6 +277,12 @@ export default {
           this.scene.remove(item)
         })
         this.table = this.table1
+        this.number = 60
+        this.camera = null
+        this.renderer = new CSS3drenderer.CSS3DRenderer()
+        this.controls = null
+        this.targets = []
+        this.objects = []
         this.start()
       }, 5000)
     },
@@ -296,14 +292,14 @@ export default {
           this.generateBall().then(() => {
             this.injectDom()
             this.animate() // 自动旋转
-            this.transform(this.targets, 0) // 生成球形
+            this.transform(this.targets, 2000) // 生成球形
           })
         })
       })
     },
     init () {
       return new Promise((resolve) => {
-        this.camera = new THREE.PerspectiveCamera(32, this.$refs.container.clientWidth / this.$refs.container.clientHeight, 1, 10000)
+        this.camera = new THREE.PerspectiveCamera(40, this.$refs.container.clientWidth / this.$refs.container.clientHeight, 1, 10000)
         this.camera.position.z = 3000
         this.scene = new THREE.Scene()
         // this.scene.add(this.root)
@@ -317,7 +313,7 @@ export default {
           var element = document.createElement('div')
           element.className = 'element'
           element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')'
-          if (i < 200) { // 高亮效果
+          if (i < this.number) { // 高亮效果
             element.style.backgroundColor = 'red'
           }
           var number = document.createElement('div')
