@@ -136,7 +136,7 @@ export default {
     }
   },
   created () {
-    this.root = new THREE.Object3D()
+    // this.root = new THREE.Object3D()
     this.scene = null
     this.camera = null
     this.renderer = new CSS3drenderer.CSS3DRenderer()
@@ -159,7 +159,7 @@ export default {
         this.camera = new THREE.PerspectiveCamera(32, this.$refs.container.clientWidth / this.$refs.container.clientHeight, 1, 10000)
         this.camera.position.z = 3000
         this.scene = new THREE.Scene()
-        this.scene.add(this.root)
+        // this.scene.add(this.root)
         resolve()
       })
     },
@@ -191,7 +191,7 @@ export default {
           object.position.z = 0
           this.scene.add(object)
           this.objects.push(object)
-          this.root.add(object)
+          // this.root.add(object)
         }
         resolve()
       })
@@ -250,8 +250,8 @@ export default {
     animate () {
       requestAnimationFrame(this.animate)
       var time = Date.now() * 0.0004
-      this.root.rotation.x = time
-      this.root.rotation.y = time * 0.7
+      this.scene.rotation.x = time
+      this.scene.rotation.y = time * 0.7
       this.render()
       TWEEN.update()
       this.controls.update()
