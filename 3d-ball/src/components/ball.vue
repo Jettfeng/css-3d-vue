@@ -271,20 +271,20 @@ export default {
   },
   methods: {
     restart () {
-      setTimeout(() => {
+      setInterval(() => {
         let objects = this.objects
         objects.forEach((item) => {
           this.scene.remove(item)
         })
         this.table = this.table1
-        this.number = 60
+        this.number = Math.ceil(Math.random() * 10) * 10
         this.camera = null
         this.renderer = new CSS3drenderer.CSS3DRenderer()
         this.controls = null
         this.targets = []
         this.objects = []
         this.start()
-      }, 5000)
+      }, 6000)
     },
     start () {
       this.init().then(() => {
